@@ -61,7 +61,9 @@ module org::bukkit::block::Block
   ##
   # return the face relative to the supplied face given a direction
   def rotate(face, direction)
-    face_for_symbol(ROTATIONS[symbol_for_face(face)][direction])
+    rot = ROTATIONS[symbol_for_face(face)]
+    raise "no #{face} on #{self.inspect}" if rot.nil?
+    face_for_symbol(rot[direction])
   end
   
   ##
@@ -74,7 +76,7 @@ module org::bukkit::block::Block
   # bad_block.break! true # same as above but it leaves an item to pick up
   # bad_block.break! true, :stone # drops item and replaces broken block with stone
   def break!(with_drop=false, replace_type=:air)
-    droppable = !is?(:air, :water, :lava)
+    droppable = !is?(:air) && !is?(:water) && !is?(:lava)
  
     # Only drop items which are actually droppable    
     if with_drop && droppable
@@ -91,8 +93,7 @@ module org::bukkit::block::Block
   private :face_for_symbol
   
   def symbol_for_face(value)
-    # oh-my... ruby<1.9 hashes dont have key()?!
-    FACE_VALUES.invert[value]
+    FACE_VALUES.key value
   end
   private :symbol_for_face
   
